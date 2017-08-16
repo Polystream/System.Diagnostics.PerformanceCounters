@@ -16,6 +16,7 @@
     <RepositoryUrl>https://github.com/Polystream/System.Diagnostics.PerformanceCounters</RepositoryUrl>
     <Version>1.0.0</Version>
     <PackageVersion>1.0.0</PackageVersion>
+    <PackageIconUrl>https://polystreamcloud.blob.core.windows.net/assets/P64.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
