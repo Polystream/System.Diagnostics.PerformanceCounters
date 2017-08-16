@@ -7,6 +7,13 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <RootNamespace></RootNamespace>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Scott Perham, Mike Norgate</Authors>
+    <Company>Polystream Ltd</Company>
+    <Product />
+    <Description>System.Diagnostics port from .net framework 4.7 to dotnet standard 1.4</Description>
+    <PackageProjectUrl>https://github.com/Polystream/System.Diagnostics.PerformanceCounters</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Polystream/System.Diagnostics.PerformanceCounters</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
