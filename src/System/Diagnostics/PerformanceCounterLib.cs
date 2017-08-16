@@ -917,17 +917,11 @@ namespace System.Diagnostics
 
             int res;
 
-            try
-            {
-                processStartInfo.Arguments = "\"" + arg0 + "\"";
-                var p = Process.Start(processStartInfo);
-                p.WaitForExit();
+            processStartInfo.Arguments = "\"" + arg0 + "\"";
+            var p = Process.Start(processStartInfo);
+            p.WaitForExit();
 
-                res = p.ExitCode;
-            }
-            finally
-            {
-            }
+            res = p.ExitCode;
 
             if (res == NativeMethods.ERROR_ACCESS_DENIED)
                 throw new UnauthorizedAccessException(SR.GetString("Cannot create or delete the Performance Category '{0}' because access is denied.", arg0));
