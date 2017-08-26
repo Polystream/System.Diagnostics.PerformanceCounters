@@ -7,9 +7,9 @@ using Microsoft.Win32.SafeHandles;
 using PerformanceCounters;
 using SafeProcessHandle = Microsoft.Win32.SafeProcessHandle;
 
-namespace System.Diagnostics
+namespace System.Diagnostics.Windows
 {
-    internal sealed class SharedPerformanceCounter
+    internal sealed class SharedPerformanceCounter : CustomPerformanceCounter
     {
         internal class ProcessWaitHandle : WaitHandle
         {
@@ -318,7 +318,7 @@ namespace System.Diagnostics
 
         FileMapping FileView => _categoryData.FileMapping;
 
-        unsafe internal long Value
+        unsafe internal override long Value
         {
             get
             {
@@ -1530,7 +1530,7 @@ namespace System.Diagnostics
             }
         }
 
-        unsafe internal long IncrementBy(long value)
+        unsafe internal override long IncrementBy(long value)
         {
             if (_counterEntryPointer == null)
                 return 0;
@@ -1540,7 +1540,7 @@ namespace System.Diagnostics
             return AddToValue(counterEntry, value);
         }
 
-        unsafe internal long Increment()
+        unsafe internal override long Increment()
         {
             if (_counterEntryPointer == null)
                 return 0;
@@ -1548,7 +1548,7 @@ namespace System.Diagnostics
             return IncrementUnaligned(_counterEntryPointer);
         }
 
-        unsafe internal long Decrement()
+        unsafe internal override long Decrement()
         {
             if (_counterEntryPointer == null)
                 return 0;
@@ -1596,7 +1596,7 @@ namespace System.Diagnostics
             }
         }
 
-        unsafe internal void RemoveInstance(string instanceName, PerformanceCounterInstanceLifetime instanceLifetime)
+        unsafe internal override void RemoveInstance(string instanceName, PerformanceCounterInstanceLifetime instanceLifetime)
         {
             if (string.IsNullOrEmpty(instanceName))
                 return;

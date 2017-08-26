@@ -158,7 +158,7 @@ namespace System.Diagnostics
 
             // 1026 chars is the size of the buffer used in perfcounter.dll to get this name.  
             // If the categoryname plus prefix is too long, we won't be able to read the category properly. 
-            if (categoryName.Length > 1024 - SharedPerformanceCounter.DefaultFileMappingName.Length)
+            if (categoryName.Length > 1024 - PerformanceCounterLib.DefaultFileMappingName.Length)
                 throw new ArgumentException(SR.GetString("Category names must be 1024 characters or less."));
         }
 
@@ -273,7 +273,7 @@ namespace System.Diagnostics
                 if (!PerformanceCounterLib.IsCustomCategory(categoryName))
                     throw new InvalidOperationException(SR.GetString("Cannot delete Performance Category because this category is not registered or is a system category."));
 
-                SharedPerformanceCounter.RemoveAllInstances(categoryName);
+                PerformanceCounterLib.RemoveAllCustomInstances(categoryName);
 
                 PerformanceCounterLib.UnregisterCategory(categoryName);
                 PerformanceCounterLib.CloseAllLibraries();

@@ -22,7 +22,7 @@ namespace System.Diagnostics
         CounterSample _oldSample = CounterSample.Empty;
 
         // Cached IP Shared Performanco counter
-        SharedPerformanceCounter _sharedCounter;
+        CustomPerformanceCounter _sharedCounter;
 
         public PerformanceCounter()
         {
@@ -348,7 +348,7 @@ namespace System.Diagnostics
                         if (string.IsNullOrEmpty(_instanceName) && InstanceLifetime == PerformanceCounterInstanceLifetime.Process)
                             throw new InvalidOperationException(SR.GetString("Single instance categories are only valid with the Global lifetime."));
 
-                        _sharedCounter = new SharedPerformanceCounter(currentCategoryName.ToLower(), _counterName.ToLower(), _instanceName.ToLower(), _instanceLifetime);
+                        _sharedCounter = PerformanceCounterLib.CreateCustomPerformanceCounter(currentCategoryName.ToLower(), _counterName.ToLower(), _instanceName.ToLower(), _instanceLifetime);
                         _initialized = true;
                     }
                 }
