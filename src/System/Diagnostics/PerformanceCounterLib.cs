@@ -1,53 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using Microsoft.Win32;
-using PerformanceCounters;
 
 namespace System.Diagnostics
 {
-
-    internal abstract class CounterDefinitionSample
-    {
-        protected internal abstract int CounterType { get; set; }
-        protected internal abstract int NameIndex { get; set; }
-        protected internal abstract CounterDefinitionSample BaseCounterDefinitionSample { get; set; }
-
-        internal abstract CounterSample GetInstanceValue(string instanceName);
-        internal abstract Dictionary<string, InstanceData> ReadInstanceData(string counterName);
-        internal abstract CounterSample GetSingleValue();
-    }
-
-    internal abstract class CategorySample
-    {
-        protected internal abstract long CounterFrequency { get; set; }
-        protected internal abstract long CounterTimeStamp { get; set; }
-        protected internal abstract long SystemFrequency { get; set; }
-        protected internal abstract long TimeStamp { get; set; }
-        protected internal abstract long TimeStamp100NSec { get; set; }
-        protected internal abstract Dictionary<int, CounterDefinitionSample> CounterTable { get; set; }
-        protected internal abstract Dictionary<string, int> InstanceNameTable { get; set; }
-        protected internal abstract bool IsMultiInstance { get; set; }
-
-        internal abstract string[] GetInstanceNamesFromIndex(int categoryIndex);
-        internal abstract CounterDefinitionSample GetCounterDefinitionSample(string counter);
-        internal abstract Dictionary<string, Dictionary<string, InstanceData>> ReadCategory();
-    }
-
-    internal abstract class CustomPerformanceCounter
-    {
-        internal abstract long Value { get; set; }
-        internal abstract long Decrement();
-        internal abstract long IncrementBy(long value);
-        internal abstract long Increment();
-        internal abstract void RemoveInstance(string instanceName, PerformanceCounterInstanceLifetime instanceLifetime);
-    }
-
     internal class PerformanceCounterLib
     {
         internal const string SingleInstanceName = "systemdiagnosticsperfcounterlibsingleinstance";
@@ -57,6 +12,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.CategoryExists(category);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.CategoryExists(category);
 
             throw new NotSupportedException();
         }
@@ -65,6 +22,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Windows.PerformanceCounterLib.CloseAllLibraries();
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                Linux.PerformanceCounterLib.CloseAllLibraries();
             else
                 throw new NotSupportedException();
         }
@@ -73,6 +32,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.CounterExists(category, counter);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.CounterExists(category, counter);
 
             throw new NotSupportedException();
         }
@@ -81,6 +42,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.GetCategories();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.GetCategories();
 
             throw new NotSupportedException();
         }
@@ -89,6 +52,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.GetCategoryHelp(category);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.GetCategoryHelp(category);
 
             throw new NotSupportedException();
         }
@@ -97,6 +62,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.GetCategorySample(category);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.GetCategorySample(category);
 
             throw new NotSupportedException();
         }
@@ -105,6 +72,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.GetCounters(category);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.GetCounters(category);
 
             throw new NotSupportedException();
         }
@@ -113,6 +82,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.GetCounterHelp(category, counter);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.GetCounterHelp(category, counter);
 
             throw new NotSupportedException();
         }
@@ -121,6 +92,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.IsCustomCategory(category);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.IsCustomCategory(category);
 
             throw new NotSupportedException();
         }
@@ -129,6 +102,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.IsBaseCounter(type);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.IsBaseCounter(type);
 
             throw new NotSupportedException();
         }
@@ -137,6 +112,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.GetCategoryType(category);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.GetCategoryType(category);
 
             throw new NotSupportedException();
         }
@@ -145,6 +122,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Windows.PerformanceCounterLib.RegisterCategory(categoryName, categoryType, categoryHelp, creationData);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                Linux.PerformanceCounterLib.RegisterCategory(categoryName, categoryType, categoryHelp, creationData);
             else
                 throw new NotSupportedException();
         }
@@ -153,6 +132,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Windows.PerformanceCounterLib.UnregisterCategory(categoryName);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                Linux.PerformanceCounterLib.UnregisterCategory(categoryName);
             else
                 throw new NotSupportedException();
         }
@@ -164,6 +145,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.PerformanceCounterLib.CreateCustomPerformanceCounter(categoryName, counterName, instanceName, lifetime);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return Linux.PerformanceCounterLib.CreateCustomPerformanceCounter(categoryName, counterName, instanceName, lifetime);
 
             throw new NotSupportedException();
         }
@@ -171,6 +154,8 @@ namespace System.Diagnostics
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Windows.PerformanceCounterLib.RemoveAllCustomInstances(categoryName);
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                Linux.PerformanceCounterLib.RemoveAllCustomInstances(categoryName);
             else
                 throw new NotSupportedException();
         }
