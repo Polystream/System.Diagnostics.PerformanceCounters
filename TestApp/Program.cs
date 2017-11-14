@@ -21,7 +21,7 @@ namespace TestApp
 
                         foreach (var performanceCounter in counters)
                         {
-                            Console.WriteLine($"{counterCategory.CategoryName}\\{performanceCounter.CounterName}");
+                            Console.WriteLine($"{counterCategory.CategoryName}\\{performanceCounter.CounterName} = {performanceCounter.NextValue()}");
                         }
                     }
                     else
@@ -33,14 +33,14 @@ namespace TestApp
 
                             foreach (var performanceCounter in counters)
                             {
-                                Console.WriteLine($"{counterCategory.CategoryName}\\{performanceCounter.CounterName}\\{instance}");
+                                Console.WriteLine($"{counterCategory.CategoryName}\\{performanceCounter.CounterName}\\{instance} = {performanceCounter.NextValue()}");
                             }
                         }
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-
+                    Console.WriteLine(ex);
                 }
             }
         }

@@ -5,16 +5,13 @@ using System.Text.RegularExpressions;
 
 namespace System.Diagnostics.Linux
 {
-    internal class NetworkInterfaceCategory : CategoryBase
+    internal class ProcessorCategory : CategoryBase
     {
-        const string FilePath = "/proc/net/dev";
-        static readonly Regex ParsingRegex = new Regex(@"(?<instanceName>[a-z0-9]+):(\s*(?<counter>[0-9]+))+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        const string FilePath = "/proc/stat";
+        static readonly Regex ParsingRegex = new Regex(@"cpu(?<instanceName>[0-9]*)(\s*(?<counter>[0-9]+))+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static readonly string[] CounterNames = {"User", "User Nice", "System", "Idle", "IO Wait", "IRQ", "Soft IRQ", "Steal", "Guest", "Guest Nice"};
 
-        static readonly string[] CounterNames =
-        {"Receive Bytes", "Receive Packets","Receive Errors","Receive Drop","Receive Fifo","Receive Frame","Receive Compressed","Receive Multicast",
-            "Transmit Bytes", "Transmit Packets","Transmit Errors","Transmit Drop","Transmit Fifo","Transmit Frame","Transmit Compressed","Transmit Multicast"};
-
-        public override string CategoryName => "Network Interface";
+        public override string CategoryName => "Processor";
         public override PerformanceCounterCategoryType Type => PerformanceCounterCategoryType.MultiInstance;
 
         public override CategorySample GetSample()
@@ -41,6 +38,8 @@ namespace System.Diagnostics.Linux
                             }
 
                             var instanceName = match.Groups["instanceName"].Value;
+                            if (string.IsNullOrEmpty(instanceName))
+                                instanceName = "_Total";
 
                             instanceValues.Add(instanceName, long.Parse(counterCaptuers[i].Value));
                         }
@@ -51,13 +50,10 @@ namespace System.Diagnostics.Linux
             return CreateCategorySample(counterValues);
         }
 
-        //Counter <instance, value>
         static CategorySample CreateCategorySample(Dictionary<string, Dictionary<string, long>> counterValues)
         {
             var instanceCount = 0;
-            var instanceNameTable = counterValues.Values.SelectMany(x=>x.Keys).Distinct().ToDictionary(x => x, x => instanceCount++);
-
-            instanceNameTable.Add("_Total", instanceCount++);
+            var instanceNameTable = counterValues.Values.SelectMany(x => x.Keys).Distinct().ToDictionary(x => x, x => instanceCount++);
 
             var sample = new CategorySample(instanceNameTable, true, CounterNames);
 
@@ -67,8 +63,6 @@ namespace System.Diagnostics.Linux
 
                 foreach (var instanceValue in counterValue.Value)
                     definitionSample.SetInstanceValue(instanceNameTable[instanceValue.Key], instanceValue.Value);
-
-                definitionSample.SetInstanceValue(instanceNameTable["_Total"], counterValue.Value.Sum(x => x.Value));
 
                 sample.CounterTable.Add(definitionSample.NameIndex, definitionSample);
             }
